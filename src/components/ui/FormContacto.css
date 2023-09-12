@@ -30,3 +30,7 @@
 :where(.css-dev-only-do-not-override-byeoj0).ant-input-affix-wrapper >input.ant-input {
     text-align: end;
 }
+
+.ant-picker-today-btn {
+    color: #56b43c !important;
+}

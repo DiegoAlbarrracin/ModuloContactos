@@ -205,13 +205,13 @@ function FormContacto({ editarContactoValues }) {
                         <Input name="email" className='input-style' onChange={handleChange} />
                     </FormItem>
 
-                    <FormItem name="fechaNac" className="formItem-style" label="Fecha de nacimiento"
+                    <Form.Item name="fechaNac" className="formItem-style" label="Fecha de nacimiento"
                         hasFeedback
                         rules={[{
                             required: false
                         }]}>
                         <DatePicker name="fechaNac" format={dateFormat} className='input-style' onChange={handleChange} />
-                    </FormItem>
+                    </Form.Item>
 
                     <FormItem name="telefono" className="formItem-style" label="Teléfono"
                         hasFeedback
