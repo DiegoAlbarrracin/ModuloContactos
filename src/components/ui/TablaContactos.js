@@ -19,16 +19,26 @@ import {
     CalendarOutlined,
     PhoneOutlined,
     MobileOutlined,
-    UserOutlined
+    UserOutlined,
+    TagsOutlined,
+    TeamOutlined,
+    DeleteOutlined,
+    ExclamationCircleFilled
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import "./TablaContactos.css";
 import { GlobalContext } from "../context/GlobalContext";
 import FormContacto from "./FormContacto";
+import FiltroEtiqueta from "./FiltroEtiqueta";
+import Link from "antd/es/typography/Link";
+import FormClientesAsoc from "./FormClientesAsoc";
 
 function TablaContactos() {
     const { message } = App.useApp();
+    const { modal } = App.useApp();
+    // const { confirm } = Modal;
+
 
     const URL = process.env.REACT_APP_URL;
     const dateFormat = "DD/MM/YYYY";
@@ -36,31 +46,73 @@ function TablaContactos() {
     const { drawerNuevoContacto, setDrawerNuevoContacto, drawerEditarContacto, setDrawerEditarContacto, actualizarTableData } = useContext(GlobalContext);
 
     const [dataContactos, setDataContactos] = useState([]);
-    //const [tableData, setTableData] = useState([]);
+    const [tableData, setTableData] = useState([]);
     const [contacto, setContacto] = useState(0);
     const [open, setOpen] = useState(false);
+    const [openClientes, setOpenClientes] = useState(false);
     const [searchedText, setSearchedText] = useState('');
+    const [etiquetasContacto, setEtiquetasContacto] = useState('');
+    const [dataClientesAsoc, setDataClientesAsoc] = useState([]);
+   
+
+    const [drawerEtiquetas, setDrawerEtiquetas] = useState(false);
+
 
     useEffect(() => {
-
-        const fetchDataContactos = async () => {
-            const data = await fetch(`${URL}con_master.php`);
-            const jsonData = await data.json();
-            setDataContactos(jsonData);
-        }
 
         fetchDataContactos()
             .catch(console.error);;
 
-
     }, [actualizarTableData]);
 
+
+    const fetchDataContactos = async () => {
+        const data = await fetch(`${URL}con_masterEtiquetas.php`);
+        const jsonData = await data.json();
+        cargarTabla(jsonData);
+        //console.log('RECARGUE TABLA CONTACTO')
+    }
+
+    const fetchEtiquetasxContactos = async (idContacto) => {
+        const dataEtiquetaxContacto = await fetch(`${URL}modulo-contacto_etiquetaxcontacto.php?idContacto=${idContacto}`);
+        const jsonDataExC = await dataEtiquetaxContacto.json();
+        setEtiquetasContacto(jsonDataExC);
+        //console.log(jsonDataExC)
+    }
+
+    const fetchDataClientesAsoc = async (idContacto) => {
+        const data = await fetch(`${URL}modulo-contacto_clientesAsoc.php?idContacto=${idContacto}`);
+        const jsonData = await data.json();
+        setDataClientesAsoc(jsonData);
+        console.log(jsonData)
+    }
+
+    const cargarTabla = (jsonData) => {
+
+        const dataContactosMaped = jsonData.map((Contacto, index) => ({
+            index: index,
+            key: Contacto.con_id,
+            nombre: Contacto.con_nombre,
+            email: Contacto.con_email,
+            telefono: Contacto.con_telefono,
+            movil: Contacto.con_movil,
+            fechaNac: Contacto.con_fechanac, //para tratamiento del dato fecha nacimiento
+            fechaNacTable: <>{dayjs().diff((dayjs(Contacto.con_fechanac, dateFormat)), 'year')} <> ({Contacto.con_fechanac})</></>, //formateado para mostrar en tabla edad (fecha nacimiento)
+            descripcion: Contacto.con_desc,
+            etiquetas: Contacto.etq_nombre,
+            etiquetasid: Contacto.etq_id,
+            //propietario: Contacto.usu_nombre,
+            //domicilio: Contacto.con_domicilio,
+        }));
+        setDataContactos(dataContactosMaped);
+        setTableData(dataContactosMaped)
+    };
 
     //Columnas Ant Design 
     const columns = [
         {
             title: "NOMBRE",
-            dataIndex: "nombre",
+            //dataIndex: "nombre",
             key: "nombre",
             align: "left",
             sorter: {
@@ -71,10 +123,16 @@ function TablaContactos() {
                     String(record.email).toUpperCase().trim().includes(value.toUpperCase().trim()) ||
                     String(record.telefono).toUpperCase().trim().includes(value.toUpperCase().trim()) ||
                     String(record.movil).toUpperCase().trim().includes(value.toUpperCase().trim()) ||
-                    String(record.domicilio).toUpperCase().trim().includes(value.toUpperCase().trim()) ||
-                    String(record.propietario).toUpperCase().trim().includes(value.toUpperCase().trim());
+                    String(record.fechaNac).toUpperCase().trim().includes(value.toUpperCase().trim());
             },
-            filteredValue: [searchedText]
+            filteredValue: [searchedText],
+            render: (fila) => {
+                return (
+                    <>
+                        <Link className="icon-color" onClick={() => seleccionarContacto(fila, 'verDetalle')}>{fila.nombre}</Link>
+                    </>
+                );
+            },
         },
         {
             title: "EMAIL",
@@ -107,8 +165,8 @@ function TablaContactos() {
         //     },
         // },
         {
-            title: "FECHA NACIMIENTO",
-            dataIndex: "fechaNac",
+            title: "EDAD",
+            dataIndex: "fechaNacTable",
             key: "fechaNac",
             align: "center",
             sorter: {
@@ -126,6 +184,51 @@ function TablaContactos() {
                         <div className="btn-contenedor">
                             <EyeOutlined className="icon-color" onClick={() => seleccionarContacto(fila, 'verDetalle')} />
                             <EditOutlined className="icon-color" onClick={() => seleccionarContacto(fila, 'editar')} />
+                            <TeamOutlined className="icon-color" onClick={() => seleccionarContacto(fila, 'clientesAsoc')} />
+                            <TagsOutlined className="icon-color" onClick={() => seleccionarContacto(fila, 'etiqueta')} />
+                        </div>
+                    </>
+                );
+            },
+        }
+    ];
+
+
+    const columnsTablaClientes = [
+        {
+            title: "CLIENTE",
+            dataIndex: "cliente",
+            key: "cliente",
+            align: "left",
+            sorter: {
+                compare: (a, b) => a.cliente.localeCompare(b.cliente),
+            },
+            // render: (fila) => {
+            //     return (
+            //         <>
+            //             <Link className="icon-color" onClick={() => seleccionarContacto(fila, 'verDetalle')}>{fila.nombre}</Link>
+            //         </>
+            //     );
+            // },
+        },
+        {
+            title: "ROL",
+            dataIndex: "rol",
+            key: "rol",
+            align: "left",
+            sorter: {
+                compare: (a, b) => a.rol.localeCompare(b.rol),
+            },
+        },
+        {
+            title: "...",
+            key: "acciones",
+            align: "center",
+            render: (fila) => {
+                return (
+                    <>
+                        <div className="btn-contenedor">
+                            <DeleteOutlined className="icon-color" onClick={() => eliminarRelacionCliCon(fila)} />
                         </div>
                     </>
                 );
@@ -143,23 +246,57 @@ function TablaContactos() {
     const seleccionarContacto = (fila, accion) => {
         setContacto(fila);
         if (accion === 'editar') setDrawerEditarContacto(true);
-        if (accion === 'verDetalle') setOpen(true);
+        if (accion === 'verDetalle') {
+            setOpen(true);
+            fetchEtiquetasxContactos(fila.key);
+        };
+        if (accion == 'clientesAsoc') {
+            setOpenClientes(true);
+            fetchDataClientesAsoc(fila.key);
+        };
+        if (accion === 'etiqueta') {
+            setDrawerEtiquetas(true);
+            fetchEtiquetasxContactos(fila.key);
+        };
     };
 
-    const tableData = dataContactos.map((Contacto, index) => ({
-        index: index,
 
-        key: Contacto.con_id,
-        nombre: Contacto.con_nombre,
-        email: Contacto.con_email,
-        telefono: Contacto.con_telefono,
-        movil: Contacto.con_movil,
-        fechaNac: Contacto.con_fechanac,
-        descripcion: Contacto.con_desc
-        //propietario: Contacto.usu_nombre,
-        //domicilio: Contacto.con_domicilio,
+    const eliminarRelacionCliCon = (fila) => {
+        console.log(fila)
+        console.log(contacto)
+        const tituloModal = `¿Desea desvincular el contacto ${contacto.nombre}, del cliente ${fila.cliente}?`;
+        modal.confirm({
+            title: tituloModal,
+            icon: <ExclamationCircleFilled style={{ color: "red" }} />,
+            okText: "Eliminar",
+            okType: "danger",
+            cancelText: "Cancelar",
+            cancelButtonProps: {
+                className: "cancel-button",
+            },
+            onOk() {
+                const data = new FormData();
+                data.append("idContacto", contacto.key);
+                data.append("idCliente", fila.key);
 
-    }));
+                const requestOptions = {
+                    method: 'POST',
+                    body: data
+                };
+                fetchEliminarRelacion(requestOptions);
+                console.log(contacto.key, fila.key)
+            },
+            onCancel() {
+            },
+        });
+    };
+
+    const fetchEliminarRelacion = async (requestOptions) => {
+        const response = await fetch(`${URL}modulo-contacto_desvincularContacto.php`, requestOptions);
+        console.log(response);
+        await fetchDataClientesAsoc(contacto.key);
+    };
+
 
     //Notificacion al copiar en modal 
     const showMessage = () => {
@@ -168,21 +305,25 @@ function TablaContactos() {
 
     return (
         <>
-
-            <div className="div-boton">
-                <h3 className="titulo-modulo">CONTACTOS</h3>
-                <div className="buscador-btn-contenedor">
-                    <Input placeholder="Buscar..." className="buscador"
-                        suffix={
-                            <SearchOutlined className="search-icon" />
-                        }
-                        onChange={(e) => {
-                            setSearchedText(e.target.value);
-                        }}
-                    />
-                    <Button type="primary" className="btn-flat" onClick={() => setDrawerNuevoContacto(true)}>NUEVO CONTACTO</Button>
-                </div>
-            </div>
+            <Row className="div-boton">
+                <Col xs={24} sm={24} md={12}>
+                    <h3 className="titulo-modulo">CONTACTOS</h3>
+                </Col>
+                <Col xs={24} sm={24} md={12}>
+                    <div className="buscador-btn-contenedor">
+                        <FiltroEtiqueta setTableData={setTableData} dataContactos={dataContactos} />
+                        <Input placeholder="Buscar..." className="buscador"
+                            suffix={
+                                <SearchOutlined className="search-icon" />
+                            }
+                            onChange={(e) => {
+                                setSearchedText(e.target.value);
+                            }}
+                        />
+                        <Button type="primary" className="btn-flat" onClick={() => setDrawerNuevoContacto(true)}>NUEVO CONTACTO</Button>
+                    </div>
+                </Col>
+            </Row>
 
 
             <Table
@@ -217,85 +358,186 @@ function TablaContactos() {
                 <FormContacto editarContactoValues={contacto} />
             </Drawer>
 
+            <Drawer
+                title="Etiquetas"
+                open={drawerEtiquetas}
+                onClose={() => setDrawerEtiquetas(false)}
+                width={320}
+                closeIcon={<CustomCloseIcon />}
+                destroyOnClose={true}
+            >
+                <FiltroEtiqueta modoEditarTags={true} contacto={contacto} dataContactos={dataContactos}
+                    etiquetasContacto={etiquetasContacto} fetchEtiquetasxContactos={fetchEtiquetasxContactos} />
+            </Drawer>
 
             <App>
-            <Modal
-                title={
-                    <div className="contenedor-titulo-modal">
-                        <div className="contacto-modal"><UserOutlined /> {contacto.nombre}</div>
-                    </div>
-                }
+                <Modal
+                    title={
+                        <div className="contenedor-titulo-modal">
+                            <div className="contacto-modal"><UserOutlined /> {contacto.nombre}</div>
+                        </div>
+                    }
 
-                centered
-                open={open}
-                onOk={() => setOpen(false)}
-                onCancel={() => setOpen(false)}
-                width={600}
-                footer={[
-                    <Button
-                        key="btnAceptarModal"
-                        type="primary"
-                        onClick={() => setOpen(false)}
-                        className="btn-flat"
-                    >
-                        Aceptar
-                    </Button>,
-                ]}
-            >
-                <Divider className="divider-style" />
+                    centered
+                    open={open}
+                    onOk={() => setOpen(false)}
+                    onCancel={() => setOpen(false)}
+                    width={600}
+                    footer={[
+                        <Button
+                            key="btnAceptarModal"
+                            type="primary"
+                            onClick={() => setOpen(false)}
+                            className="btn-flat"
+                        >
+                            Aceptar
+                        </Button>,
+                    ]}
+                >
+                    <Divider className="divider-style" />
 
-                <div className="body-modal">
+                    <div className="body-modal">
+                        <Row>
+                            <Col xs={24} sm={24} md={24} className="card-col">
 
-                    <Row className="card-row">
-                        <Col xs={24} sm={12} md={6} className="col-card">
-                            
+                                <div>
+                                    <div className="selected-tags">
+                                        {Array.isArray(etiquetasContacto) ? etiquetasContacto?.map((tag) => (
+                                            <div
+                                                className='etiqueta-general-style'
+                                                style={{
+                                                    background: tag.etq_color
+                                                }}
+                                                key={tag.etq_id}
+                                            >
+                                                <span className="etiqueta-name">
+                                                    {tag.etq_nombre.toUpperCase()}
+                                                </span>
+                                            </div>
+                                        )) : null}
+                                    </div>
+                                </div>
+
+                            </Col>
+                        </Row>
+
+                        <Row className="card-row">
+                            <Col xs={24} sm={12} md={6} className="card-col">
+
                                 <MailOutlined className="icon-size" />
                                 <div className="name-card">EMAIL</div>
 
-                            <CopyToClipboard text={contacto.email} >
+                                <CopyToClipboard text={contacto.email} >
                                     <div className="data" onClick={showMessage} >{contacto.email}</div>
-                            </CopyToClipboard>
+                                </CopyToClipboard>
 
-                        </Col>
-                        <Col xs={24} sm={12} md={6} className="col-card">
+                            </Col>
+                            <Col xs={24} sm={12} md={6} className="card-col">
 
-                            <CalendarOutlined className="icon-size" />
-                            <div className="name-card">EDAD</div>
-                            {contacto.fechaNac ? 
-                                <CopyToClipboard text= {contacto.fechaNac}>
+                                <CalendarOutlined className="icon-size" />
+                                <div className="name-card">EDAD</div>
+                                {contacto.fechaNac ?
+                                    <CopyToClipboard text={contacto.fechaNac}>
 
-                                    <div className="data" onClick={showMessage} >{dayjs().diff((dayjs(contacto.fechaNac, dateFormat)), 'year')} <div style={{ color: 'black', marginLeft: '8px' }}> ({contacto.fechaNac})</div></div>
-                                </CopyToClipboard> : ''}
+                                        <div className="data" onClick={showMessage} >{dayjs().diff((dayjs(contacto.fechaNac, dateFormat)), 'year')} <div style={{ color: 'black', marginLeft: '8px' }}> ({contacto.fechaNac})</div></div>
+                                    </CopyToClipboard> : ''}
 
-                        </Col>
+                            </Col>
 
-                    </Row>
+                        </Row>
+                        <Divider className="divider-style" />
+                        <Row className="card-row">
+                            <Col xs={24} sm={12} md={6} className="card-col">
+
+                                <PhoneOutlined className="icon-size" />
+                                <div className="name-card">TELEFONO</div>
+                                <CopyToClipboard text={contacto.telefono} >
+                                    <div className="data" onClick={showMessage} >{contacto.telefono}</div>
+                                </CopyToClipboard>
+
+                            </Col>
+                            <Col xs={24} sm={12} md={6} className="card-col">
+
+                                <MobileOutlined className="icon-size" />
+                                <div className="name-card">MOVIL</div>
+                                <CopyToClipboard text={contacto.movil} >
+                                    <div className="data" onClick={showMessage} >{contacto.movil}</div>
+                                </CopyToClipboard>
+
+                            </Col>
+
+                        </Row>
+                    </div>
+                </Modal>
+
+
+
+                <Modal
+                    title={
+                        <div className="contenedor-titulo-modal">
+                            <div className="contacto-modal"><TeamOutlined /> CUENTAS ASOCIADAS AL CONTACTO</div>
+                        </div>
+                    }
+
+                    centered
+                    open={openClientes}
+                    onOk={() => setOpenClientes(false)}
+                    onCancel={() => setOpenClientes(false)}
+                    destroyOnClose
+                    width={600}
+                    footer={[
+                        <Button
+                            key="btnAceptarModal"
+                            type="primary"
+                            onClick={() => setOpenClientes(false)}
+                            className="btn-flat"
+                        >
+                            Cerrar
+                        </Button>,
+                    ]}
+                >
                     <Divider className="divider-style" />
-                    <Row className="card-row">
-                        <Col xs={24} sm={12} md={6} className="col-card">
 
-                            <PhoneOutlined className="icon-size" />
-                            <div className="name-card">TELEFONO</div>
-                            <CopyToClipboard text= {contacto.telefono} >
-                                <div className="data" onClick={showMessage} >{contacto.telefono}</div>
-                            </CopyToClipboard>
+                    <div className="body-modal">
+                        <Row>
+                            <Col xs={24} sm={24} md={24}>
 
-                        </Col>
-                        <Col xs={24} sm={12} md={6} className="col-card">
+                                <FormClientesAsoc idContacto={contacto?.key} fetchDataClientesAsoc={fetchDataClientesAsoc} />
 
-                            <MobileOutlined className="icon-size" />
-                            <div className="name-card">MOVIL</div>
-                            <CopyToClipboard text= {contacto.movil} >
-                                <div className="data" onClick={showMessage} >{contacto.movil}</div>
-                            </CopyToClipboard>
+                            </Col>
+                        </Row>
 
-                        </Col>
+                        <Row>
+                            <Col xs={24} sm={24} md={24}>
 
-                    </Row>
-                </div>
-            </Modal>
+                                <Table
+                                    size={"small"}
+                                    dataSource={dataClientesAsoc}
+                                    columns={columnsTablaClientes}
+                                    pagination={{
+                                        position: ["none", "bottomRight"],
+                                        showSizeChanger: false
+                                    }}
+                                />
+
+                            </Col>
+                            {/* <Col xs={24} sm={12} md={6} className="card-col">
+
+                                <CalendarOutlined className="icon-size" />
+                                <div className="name-card">EDAD</div>
+                                {contacto.fechaNac ?
+                                    <CopyToClipboard text={contacto.fechaNac}>
+
+                                        <div className="data" onClick={showMessage} >{dayjs().diff((dayjs(contacto.fechaNac, dateFormat)), 'year')} <div style={{ color: 'black', marginLeft: '8px' }}> ({contacto.fechaNac})</div></div>
+                                    </CopyToClipboard> : ''}
+
+                            </Col> */}
+                        </Row>
+
+                    </div>
+                </Modal>
             </App>
-           
+
         </>
     )
 }
@@ -303,6 +545,6 @@ function TablaContactos() {
 // Exporto este componente envuelto en tags App de Ant design para poder hacer correcto uso del componente message.
 export default () => (
     <App>
-      <TablaContactos />
+        <TablaContactos />
     </App>
 );

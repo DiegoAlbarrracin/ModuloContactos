@@ -1,0 +1,35 @@
+.contenedor-inputs-formClientesAsoc {
+    display: flex;
+    flex-direction: row;
+    /* justify-content: flex-start; */
+    gap: 8px;
+    height: 30px;
+}
+
+.btn-contenedor-modal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.btn-contenedor-modal-hideSelects {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+/*Boton guardar nueva relacion contacto-rol (modal)*/
+.btn-guardar-relacion {
+    border-color: transparent;
+    margin: 0;
+    padding: 0;
+    width: 0;
+    height: 0;
+    
+}
+
+.btn-guardar-relacion:hover {
+    border-color: transparent !important;
+}

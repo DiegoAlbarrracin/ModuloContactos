@@ -1,0 +1,44 @@
+.ant-select-selector {
+    min-width: 200px;
+    border-radius: 0 !important;
+}
+
+.ant-select-selector-drawer {
+    width: 240px !important;
+    border-color: transparent !important;
+}
+
+.contenedor-drawer {
+    display: flex;
+    justify-content: space-between;
+    /* padding-bottom: 8px; */
+}
+
+/*Listado estiquetas*/
+.selected-tags {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    padding-bottom: 8px;
+    cursor: default;
+    padding-left: 5px;
+}
+
+.etiqueta-name {
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
+        "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.etiqueta-general-style {
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 8px;
+    display: inline-block;
+    margin-top: 2px;
+}

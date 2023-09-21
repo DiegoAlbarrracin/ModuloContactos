@@ -25,10 +25,10 @@
 
 .card-row {
     justify-content: space-around;
-    margin-top: 35px;
+    margin-top: 25px;
 }
 
-.col-card {
+.card-col {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -107,7 +107,7 @@
 
 /*Iconos de tabla*/
 .icon-color {
-    color: #56b43c;
+    color: #56b43c !important; 
 }
 
 .btn-contenedor {
@@ -153,17 +153,29 @@
 
 /*Buscador*/
 .buscador {
-    width: 200px;
-    height: 32px;
+    min-width: 200px; /*Esta puesto asi y no con width, sino al reducir pantalla, se colapsa*/
+    max-width: 200px;
     border-radius: 0px;
+    height: 32px;
 }
 
 .buscador-btn-contenedor {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 8px;
 }
 
 .search-icon {
     color: rgba(0,0,0,.45);
 }
+
+.tags-contenedor {
+    display: flex;
+    justify-content: center;
+}
+
+.cancel-button:hover {
+    border-color: #56b43c !important;
+    color: #56b43c !important;
+}
+

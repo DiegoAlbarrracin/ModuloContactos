@@ -19,8 +19,7 @@ function FormContacto({ editarContactoValues }) {
     const idUserLogged = localStorage.getItem("usuario");
     const { TextArea } = Input;
 
-    const { setDrawerNuevoContacto, actualizarTableData, setActualizarTableData, setDrawerEditarContacto } =
-        useContext(GlobalContext);
+    const { setDrawerNuevoContacto, actualizarTableData, setActualizarTableData, setDrawerEditarContacto } = useContext(GlobalContext);
 
     const [contacto, setContacto] = useState({
         nombre: "",
@@ -70,7 +69,7 @@ function FormContacto({ editarContactoValues }) {
                 // idRol: editarContactoValues.id
             });
             //Asigno en el state para luego reutilizarlo a la hora de editar, en caso contrario causa conflictos por el formato que devuelve el datePicker de ant en el primer parametro.
-            setContacto(prev => ({ ...prev, fechaNac: editarContactoValues.fechaNac }));   
+            setContacto(prev => ({ ...prev, fechaNac: editarContactoValues.fechaNac }));
             //console.log(editarContactoValues)
         }
 
@@ -113,8 +112,8 @@ function FormContacto({ editarContactoValues }) {
     const editarContacto = async (values) => {
         console.log('Tratando de editar');
         console.log(contacto.fechaNac);
-     
-        
+
+
         const data = new FormData();
         data.append("idContacto", editarContactoValues.key);
         data.append("nombre", values.nombre.toUpperCase());
@@ -160,7 +159,7 @@ function FormContacto({ editarContactoValues }) {
 
     const fetchRoles = async () => {
         try {
-           
+
             const data = await fetch(`${URL}con_roles.php`);
             const jsonData = await data.json();
 
@@ -169,8 +168,8 @@ function FormContacto({ editarContactoValues }) {
                 label: rol.rol_desc
             }));
             setOptionsRoles(optionsRoles);
-        
-        } catch(err){ console.log(err) };
+
+        } catch (err) { console.log(err) };
     };
 
 
@@ -182,7 +181,7 @@ function FormContacto({ editarContactoValues }) {
                 onFinish={editarContactoValues ? editarContacto : crearContacto}
                 autoComplete="off"
             >
-                <div className="contenedor-inputs">
+                <div className="contenedor-inputs-formContacto">
 
                     <FormItem name="nombre" className="formItem-style" label="Nombre"
                         hasFeedback
@@ -268,7 +267,7 @@ function FormContacto({ editarContactoValues }) {
                             filterOption={(input, option) => (option?.label ?? '').includes(input.toUpperCase().trim())}
                             options={optionsCliente}
                             onChange={handleChangeCliente}
-                            name="idCliente" 
+                            name="idCliente"
                         />
                     </FormItem> : ''}
 
@@ -285,19 +284,19 @@ function FormContacto({ editarContactoValues }) {
                             optionFilterProp="children"
                             filterOption={(input, option) => (option?.label ?? '').includes(input)}
                             options={optionsRoles.length > 0 ? optionsRoles : ''}
-                            onChange={(e)=>setContacto(prev => ({ ...prev, idRol: e }))}
-                            name="idRol" 
+                            onChange={(e) => setContacto(prev => ({ ...prev, idRol: e }))}
+                            name="idRol"
                         />
                     </FormItem> : ''}
 
-                </div>
 
+
+                </div>
                 <Button
                     type="primary"
                     htmlType="submit"
                     className='btn-guardar'
                 >GUARDAR</Button>
-
             </Form>
         </>
     )

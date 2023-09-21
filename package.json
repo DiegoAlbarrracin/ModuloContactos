@@ -1,5 +1,6 @@
 {
-  "name": "modulo-contactos",
+  "name": "modulo-contactos", 
+  "homepage": ".",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
