@@ -1,6 +1,7 @@
 .input-style {
     margin-top: -5px;
-    width: 250px;
+    width: 250px; 
+    margin-bottom: 5px;
 }
 
 .formItem-style {
@@ -13,10 +14,6 @@
     justify-content: center;
     width: 100%;
     margin-left: 11px;
-}
-
-.input-style {
-    margin-bottom: 5px;
 }
 
 .btn-guardar {

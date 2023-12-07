@@ -33,6 +33,7 @@ import FormContacto from "./FormContacto";
 import FiltroEtiqueta from "./FiltroEtiqueta";
 import Link from "antd/es/typography/Link";
 import FormClientesAsoc from "./FormClientesAsoc";
+import { Tag } from "../utils/CardBrightness";
 
 function TablaContactos() {
     const { message } = App.useApp();
@@ -53,7 +54,7 @@ function TablaContactos() {
     const [searchedText, setSearchedText] = useState('');
     const [etiquetasContacto, setEtiquetasContacto] = useState('');
     const [dataClientesAsoc, setDataClientesAsoc] = useState([]);
-   
+
 
     const [drawerEtiquetas, setDrawerEtiquetas] = useState(false);
 
@@ -169,6 +170,7 @@ function TablaContactos() {
             dataIndex: "fechaNacTable",
             key: "fechaNac",
             align: "center",
+            //defaultSortOrder: 'ascend',
             sorter: {
                 compare: (a, b) =>
                     dayjs(a.fechaNac, "DD-MM-YYYY") - dayjs(b.fechaNac, "DD-MM-YYYY"),
@@ -359,7 +361,7 @@ function TablaContactos() {
             </Drawer>
 
             <Drawer
-                title="Etiquetas"
+                title={<div>Etiquetas<br /><div style={{ color: "#56b43c" }}>{contacto?.nombre}</div></div>}
                 open={drawerEtiquetas}
                 onClose={() => setDrawerEtiquetas(false)}
                 width={320}
@@ -384,14 +386,14 @@ function TablaContactos() {
                     onCancel={() => setOpen(false)}
                     width={600}
                     footer={[
-                        <Button
-                            key="btnAceptarModal"
-                            type="primary"
-                            onClick={() => setOpen(false)}
-                            className="btn-flat"
-                        >
-                            Aceptar
-                        </Button>,
+                        // <Button
+                        //     key="btnAceptarModal"
+                        //     type="primary"
+                        //     onClick={() => setOpen(false)}
+                        //     className="btn-flat"
+                        // >
+                        //     Aceptar
+                        // </Button>,
                     ]}
                 >
                     <Divider className="divider-style" />
@@ -402,7 +404,7 @@ function TablaContactos() {
 
                                 <div>
                                     <div className="selected-tags">
-                                        {Array.isArray(etiquetasContacto) ? etiquetasContacto?.map((tag) => (
+                                        {/* {Array.isArray(etiquetasContacto) ? etiquetasContacto?.map((tag) => (
                                             <div
                                                 className='etiqueta-general-style'
                                                 style={{
@@ -414,7 +416,12 @@ function TablaContactos() {
                                                     {tag.etq_nombre.toUpperCase()}
                                                 </span>
                                             </div>
+                                        )) : null} */}
+                                        {Array.isArray(etiquetasContacto) ? etiquetasContacto?.map((tag) => (
+                                            <Tag key={tag.etq_id} hex={tag.etq_color} nombre={tag.etq_nombre.toUpperCase()} />
+
                                         )) : null}
+
                                     </div>
                                 </div>
 

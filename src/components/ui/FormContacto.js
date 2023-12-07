@@ -111,7 +111,7 @@ function FormContacto({ editarContactoValues }) {
     //Funcion que MODIFICA contacto
     const editarContacto = async (values) => {
         console.log('Tratando de editar');
-        console.log(contacto.fechaNac);
+        console.log(values);
 
 
         const data = new FormData();

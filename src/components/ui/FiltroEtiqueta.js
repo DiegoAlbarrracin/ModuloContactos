@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useContext } from 'react'
-import { Select, Form } from "antd";
+import { Select, Form, Row, Col } from "antd";
 import {
   EditOutlined
 } from "@ant-design/icons";
 import FormItem from "antd/es/form/FormItem";
 import './FiltroEtiqueta.css';
 import { GlobalContext } from "../context/GlobalContext";
+import { Tag } from '../utils/CardBrightness';
 
 
 function FiltroEtiqueta({ modoEditarTags, contacto, etiquetasContacto, fetchEtiquetasxContactos, setTableData, dataContactos }) {
@@ -60,7 +61,7 @@ function FiltroEtiqueta({ modoEditarTags, contacto, etiquetasContacto, fetchEtiq
   };
 
   const onchangeEditarTags = (etiquetas) => {
-    console.log(etiquetas)
+    //console.log(etiquetas)
     let etq = [];
     const data = new FormData();
     data.append("idContacto", contacto.key);
@@ -82,35 +83,47 @@ function FiltroEtiqueta({ modoEditarTags, contacto, etiquetasContacto, fetchEtiq
     });
   };
 
+  console.log(dataEtiquetas)
   const renderEtiquetaTag = (props) => {
     const { label, value, closable, onClose } = props;
     const etiqueta = dataEtiquetas?.find((etiqueta) => etiqueta.etq_id === value);
     const backgroundColor = etiqueta ? etiqueta.etq_color : "";
     return (
-      <div
-        className='etiqueta-general-style'
-        style={{
-          backgroundColor,
-          marginRight: "8px" /*Espacio entre etiquetas */
-        }}
-      >
-        <span style={{ paddingTop: "2px", fontWeight: "600" }}>
-          {label?.toUpperCase()}
-        </span>
-        {closable && (
-          <span
-            style={{ marginLeft: "4px", cursor: "pointer" }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-            }}
-          >
-            x
-          </span>
-        )}
+      <div style={{ padding: "4px 4px 0px 2px" }} >
+        <Tag hex={backgroundColor} nombre={label?.toUpperCase()} closable={closable} onClose={onClose} />
       </div>
     );
   };
+
+  // const renderEtiquetaTagAntiguo = (props) => {
+  //   const { label, value, closable, onClose } = props;
+  //   const etiqueta = dataEtiquetas?.find((etiqueta) => etiqueta.etq_id === value);
+  //   const backgroundColor = etiqueta ? etiqueta.etq_color : "";
+  //   return (
+  //     <div
+  //       className='etiqueta-general-style'
+  //       style={{
+  //         backgroundColor,
+  //         marginRight: "8px" /*Espacio entre etiquetas */
+  //       }}
+  //     >
+  //       <span style={{ paddingTop: "2px", fontWeight: "600" }}>
+  //         {label?.toUpperCase()}
+  //       </span>
+  //       {closable && (
+  //         <span
+  //           style={{ marginLeft: "4px", cursor: "pointer" }}
+  //           onClick={(e) => {
+  //             e.stopPropagation();
+  //             onClose();
+  //           }}
+  //         >
+  //           x
+  //         </span>
+  //       )}
+  //     </div>
+  //   );
+  // };
 
 
   return (
@@ -134,41 +147,42 @@ function FiltroEtiqueta({ modoEditarTags, contacto, etiquetasContacto, fetchEtiq
             autoComplete="off"
             initialValues={contacto?.etiquetasid.length > 0 & contacto?.etiquetasid[0] !== null && contacto}
           >
-            <div className='contenedor-drawer'>
+            <Row className='contenedor-drawer'>
 
-              {editarTags ? <FormItem name="etiquetasid">
-                <Select
-                  showSearch
-                  className='ant-select-selector-drawer'
-                  mode="multiple"
-                  placeholder="Seleccione etiquetas"
-                  options={optionsEtiquetasContacto}
-                  optionFilterProp="children"
-                  filterOption={(input, option) => (option?.label ?? '').includes(input.toUpperCase().trim())}
-                  onChange={onchangeEditarTags}
-                  tagRender={renderEtiquetaTag} // Apariencia de etiquetas seleccionadas
-                />
-              </FormItem> :
-                <div>
-                  <div className="selected-tags">
+              {editarTags ?
+                <Col xs={22} sm={22} md={22}>
+
+
+                  <FormItem name="etiquetasid">
+                    <Select
+                      showSearch
+                      className='ant-select-selector-drawer'
+                      mode="multiple"
+                      placeholder="Seleccione etiquetas"
+                      options={optionsEtiquetasContacto}
+                      optionFilterProp="children"
+                      filterOption={(input, option) => (option?.label ?? '').includes(input.toUpperCase().trim())}
+                      onChange={onchangeEditarTags}
+                      tagRender={renderEtiquetaTag} // Apariencia de etiquetas seleccionadas
+                    />
+                  </FormItem>
+                </Col>
+                :
+                <Col xs={22} sm={22} md={22}>
+                  <div className="selected-tags-edit">
+
                     {Array.isArray(etiquetasContacto) ? etiquetasContacto?.map((tag) => (
-                      <div
-                      className='etiqueta-general-style'
-                        style={{
-                          background: tag.etq_color
-                        }}
-                        key={tag.etq_id}
-                      >
-                        <span className="etiqueta-name">
-                          {tag.etq_nombre.toUpperCase()}
-                        </span>
-                      </div>
+                      <Tag key={tag.etq_id} hex={tag.etq_color} nombre={tag.etq_nombre.toUpperCase()} />
                     )) : null}
+
                   </div>
-                </div>
+                </Col>
               }
-              <EditOutlined className="icon-color" style={{ fontSize: '16px' }} onClick={() => setEditarTags(!editarTags)} />
-            </div>
+              <Col xs={2} sm={2} md={2} style={{ textAlign: "center" }}>
+                <EditOutlined className="icon-color" style={{ fontSize: '16px', paddingTop: "5px" }} onClick={() => setEditarTags(!editarTags)} />
+              </Col>
+
+            </Row>
 
           </Form>
 

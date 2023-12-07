@@ -26,6 +26,17 @@
     padding-left: 5px;
 }
 
+/*Listado estiquetas*/
+.selected-tags-edit {
+    position: relative;
+    display: flex;
+    flex: auto;
+    flex-wrap: wrap;
+    max-width: 90%;
+    gap: 8px;
+    cursor: default;
+}
+
 .etiqueta-name {
     color: white;
     font-size: 14px;
@@ -35,10 +46,10 @@
         "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
-.etiqueta-general-style {
+/* .etiqueta-general-style {
     color: #fff;
     border-radius: 4px;
     padding: 2px 8px;
     display: inline-block;
     margin-top: 2px;
-}
+} */
