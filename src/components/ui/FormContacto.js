@@ -240,7 +240,7 @@ function FormContacto({ editarContactoValues }) {
                             //pattern: new RegExp('^[0-9]+$')
                         }]}>
                         <Input className='input-style' onChange={handleChange} />
-                    </FormItem> */}
+                    </FormItem> */} 
 
                     <FormItem name="descripcion" className="formItem-style" label="Descripcion"
                         hasFeedback
